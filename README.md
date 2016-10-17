@@ -1,7 +1,8 @@
 # seng-canvas-text
 
-Parse html to canvas text
+Based on [canvas-text](http://www.canvastext.com). Refactored and written in typescript.
 
+Parse html to canvas text
 
 ## Installation
 
