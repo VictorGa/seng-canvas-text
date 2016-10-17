@@ -4,9 +4,9 @@
 [![npm](https://img.shields.io/npm/v/seng-boilerplate.svg?maxAge=2592000)](https://www.npmjs.com/package/seng-boilerplate)
 [![npm](https://img.shields.io/npm/dm/seng-boilerplate.svg?maxAge=2592000)](https://www.npmjs.com/package/seng-boilerplate)
 
-# seng-boilerplate
+# seng-canvas-text
 
-Add a description here...
+Parse html to canvas text
 
 
 ## Installation
@@ -14,13 +14,13 @@ Add a description here...
 ### npm
 
 ```sh
-npm i -S seng-boilerplate
+npm i -S seng-canvas-text
 ```
 
 ### other
 
 We also have browser, amd, commonjs, umd, systemjs and es6 versions of
-this module available attached to the [Github Releases](https://github.com/mediamonks/seng-boilerplate/releases).
+this module available attached to the [Github Releases](https://github.com/mediamonks/seng-canvas-text/releases).
 
 <!---
 
@@ -32,10 +32,10 @@ new version.
 ### browser
 
 ```html
-<script src="http://mediamonks-development.s3.amazonaws.com/seng/libs/seng-boilerplate/1.2.0/seng-boilerplate.min.js"></script>
+<script src="http://mediamonks-development.s3.amazonaws.com/seng/libs/seng-canvas-text/1.2.0/seng-canvas-text.min.js"></script>
 ```
 ```js
-console.log(window.SengBoilerplate)
+console.log(window.SengCanvasText)
 ```
 
 ### other
@@ -43,12 +43,12 @@ console.log(window.SengBoilerplate)
 Besides the browser version, there are other versions available for
 download as well:
 
-- [browser](http://mediamonks-development.s3.amazonaws.com/seng/libs/seng-boilerplate/1.2.0/seng-boilerplate.js) (and [minified](http://mediamonks-development.s3.amazonaws.com/seng/libs/seng-boilerplate/1.2.0/seng-boilerplate.min.js))
-- [umd](http://mediamonks-development.s3.amazonaws.com/seng/libs/seng-boilerplate/1.2.0/seng-boilerplate.js) (and [minified](http://mediamonks-development.s3.amazonaws.com/seng/libs/seng-boilerplate/1.2.0/seng-boilerplate-umd.min.js))
-- [amd](http://mediamonks-development.s3.amazonaws.com/seng/libs/seng-boilerplate/1.2.0/seng-boilerplate-amd.js)
-- [commonjs](http://mediamonks-development.s3.amazonaws.com/seng/libs/seng-boilerplate/1.2.0/seng-boilerplate-commonjs.js)
-- [systemjs](http://mediamonks-development.s3.amazonaws.com/seng/libs/seng-boilerplate/1.2.0/seng-boilerplate-system.js)
-- [es6](http://mediamonks-development.s3.amazonaws.com/seng/libs/seng-boilerplate/1.2.0/seng-boilerplate-es6.zip)
+- [browser](http://mediamonks-development.s3.amazonaws.com/seng/libs/seng-canvas-text/1.2.0/seng-canvas-text.js) (and [minified](http://mediamonks-development.s3.amazonaws.com/seng/libs/seng-canvas-text/1.2.0/seng-canvas-text.min.js))
+- [umd](http://mediamonks-development.s3.amazonaws.com/seng/libs/seng-canvas-text/1.2.0/seng-canvas-text.js) (and [minified](http://mediamonks-development.s3.amazonaws.com/seng/libs/seng-canvas-text/1.2.0/seng-canvas-text-umd.min.js))
+- [amd](http://mediamonks-development.s3.amazonaws.com/seng/libs/seng-canvas-text/1.2.0/seng-canvas-text-amd.js)
+- [commonjs](http://mediamonks-development.s3.amazonaws.com/seng/libs/seng-canvas-text/1.2.0/seng-canvas-text-commonjs.js)
+- [systemjs](http://mediamonks-development.s3.amazonaws.com/seng/libs/seng-canvas-text/1.2.0/seng-canvas-text-system.js)
+- [es6](http://mediamonks-development.s3.amazonaws.com/seng/libs/seng-canvas-text/1.2.0/seng-canvas-text-es6.zip)
 
 -->
 
@@ -60,10 +60,10 @@ targets yourself.
 ## Usage
 
 ```ts
-import SengBoilerplate from 'seng-boilerplate';
-// import SengBoilerplate from 'seng-boilerplate/lib/classname';
+import SengCanvasText from 'seng-boilerplate';
+// import SengCanvasText from 'seng-boilerplate/lib/classname';
 
-// do something with SengBoilerplate
+// do something with SengCanvasText
 ```
 
 
@@ -116,19 +116,19 @@ If you want to create the distribution files yourself, you can run the
 `build-dist` script, and the following files will get generated in the
 `dist` folder:
 
-- **/dist/seng-boilerplate.js**: bundled with webpack, can be loaded from
-	a script tag, available as `window.SengBoilerplate`
-- **/dist/seng-boilerplate.min.js**: same as above, but minified
-- **/dist/seng-boilerplate-amd.js**: bundled with webpack, can be used
+- **/dist/seng-canvas-text.js**: bundled with webpack, can be loaded from
+	a script tag, available as `window.SengCanvasText`
+- **/dist/seng-canvas-text.min.js**: same as above, but minified
+- **/dist/seng-canvas-text-amd.js**: bundled with webpack, can be used
 	with e.g. requirejs
-- **/dist/seng-boilerplate-commonjs.js**: bundled with webpack, can be
+- **/dist/seng-canvas-text-commonjs.js**: bundled with webpack, can be
 	used in systems that support commonjs, but you should just use npm
-- **/dist/seng-boilerplate-umd.js**: bundled with webpack, works in the
+- **/dist/seng-canvas-text-umd.js**: bundled with webpack, works in the
 	browser, with requirejs, and in a commonjs system
-- **/dist/seng-boilerplate-umd.min.js**: same as above, but minified
-- **/dist/seng-boilerplate-system.js**: bundled with typescript, can be
+- **/dist/seng-canvas-text-umd.min.js**: same as above, but minified
+- **/dist/seng-canvas-text-system.js**: bundled with typescript, can be
 	used in systems	that support systemjs
-- **/dist/seng-boilerplate-es6.zip**: transpiled with typescript, only
+- **/dist/seng-canvas-text-es6.zip**: transpiled with typescript, only
 	types are removed from the source files
 
 ## Contribute
@@ -150,55 +150,6 @@ View [AUTHORS.md](./AUTHORS.md)
 
 [MIT](./LICENSE) © MediaMonks
 
-
-## About this boilerplate
-
-**Remove this section when cloning this boilerplate to a real project!**
-
-### Folders
-
-This boilerplate contains the following folders:
-* **/config** - Contains the config files for karma and webpack
-* **/coverage** - Contains the generated test code coverage, is sent to Code
-Climage and Coveral.io.
-* **/dist** - Contains the compiled code in different forms for manual usage.
-* **/doc** - Can contain additional documentation.
-* **/docs/typedoc/** - Contains the generated documentation by typedoc.
-* **/example** - Can contain additional examples on how to use this module.
-* **/lib** - Contains the built code from `src/lib`, will be published to npm.
-* **/node_modules** - Contains the node modules generated by running `npm i`.
-* **/script** - Contains scripts being called from npm scripts.
-* **/src** - Contains the source code.
-* **/test** - Contains the tests.
-* **/typings** - Contains the .d.ts files generated by running `typings i`.
-* **/vendor** - Can contain 3rd party code used in this project, when not
-available on npm.
-
-### Files
-
-This boilerplate contains the following files:
-* **/config/karma.conf.js** - Configuration for Karma test runner.
-* **/config/webpack.conf.js** - Configuration for Webpack builds.
-* **/script/webpack.js** - Creates all the different webpack dist builds.
-* **.codeclimate.yml** - The Code Climate configuration for this project.
-* **.editorconfig** - Defines general formatting rules.
-* **.gitignore** - These files should not end up in git.
-* **.npmignore** - These files should not end up in npm.
-* **.travis.yml** - Configuration for Travis CI.
-* **AUTHORS.md** - Contains a list of all the authors that worked on this module.
-* **CONTRIBUTING.md** - Contains information on how to contribute on this project.
-* **index.d.ts** - The built Typescript definitions, referenced in the package.json.
-Will be published to npm.
-* **index.d.ts** - The built Typescript index, referenced in the package.json.
-Will be published to npm.
-* **LICENSE** - Our license file.
-* **package.json** - To list the npm package information, all the dependencies,
-and contains all the scripts that can be run.
-* **README.MD** - This file, remove the about section when cloning this boilerplate.
-* **tsconfig.json** - The TypeScript configuration file for this project.
-* **/test/tsconfig.json** - The TypeScript configuration file for the tests.
-* **tslint.json** - The linting rules for our TypeScript code.
-* **typings.json** - The .d.ts dependencies for this project.
 
 ### TypeScript
 
