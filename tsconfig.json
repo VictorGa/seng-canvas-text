@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es5",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "preserveConstEnums": true,
+    "noImplicitAny": false,
+    "removeComments": false,
+    "sourceMap": false,
+    "inlineSourceMap": false,
+    "outDir": "./"
+  },
+  "files": [
+    "./definition/index.d.ts",
+    "./src/index.ts",
+    "./src/lib/CanvasText.ts",
+    "./src/lib/TextStyle.ts"
+  ]
+}

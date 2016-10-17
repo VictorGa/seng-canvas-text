@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Seng Canvas Text example</title>
+	<script type="text/javascript" src="dist/canvas-text.js"></script>
+</head>
+<body>
+<canvas id="canvas" width="700" height="300"></canvas>
+<script>
+	var canvasText = new SengCanvasText.CanvasText();
+	canvasText.canvas = document.getElementById('canvas');
+	canvasText.drawText({
+		x:0, y: 50,
+		text: "<style='font-size:50px;'>FOR YOUR</style>  <style='font-size:50px;color:#00F'>TOOLSET</style> " +
+		"<br /> Every tool you need at arms length with integrated tool hooks",
+		boxWidth: 500
+	})
+</script>
+</body>
+</html>
