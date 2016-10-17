@@ -1,9 +1,3 @@
-[![Travis](https://img.shields.io/travis/mediamonks/seng-boilerplate.svg?maxAge=2592000)](https://travis-ci.org/mediamonks/seng-boilerplate)
-[![Code Climate](https://img.shields.io/codeclimate/github/mediamonks/seng-boilerplate.svg?maxAge=2592000)](https://codeclimate.com/github/mediamonks/seng-boilerplate)
-[![Coveralls](https://img.shields.io/coveralls/mediamonks/seng-boilerplate.svg?maxAge=2592000)](https://coveralls.io/github/mediamonks/seng-boilerplate?branch=master)
-[![npm](https://img.shields.io/npm/v/seng-boilerplate.svg?maxAge=2592000)](https://www.npmjs.com/package/seng-boilerplate)
-[![npm](https://img.shields.io/npm/dm/seng-boilerplate.svg?maxAge=2592000)](https://www.npmjs.com/package/seng-boilerplate)
-
 # seng-canvas-text
 
 Parse html to canvas text
@@ -60,8 +54,8 @@ targets yourself.
 ## Usage
 
 ```ts
-import SengCanvasText from 'seng-boilerplate';
-// import SengCanvasText from 'seng-boilerplate/lib/classname';
+import SengCanvasText from 'seng-canvas-text';
+// import SengCanvasText from 'seng-canvas-text/lib/classname';
 
 // do something with SengCanvasText
 ```
@@ -69,22 +63,22 @@ import SengCanvasText from 'seng-boilerplate';
 
 ## Documentation
 
-View the [generated documentation](https://rawgit.com/mediamonks/seng-boilerplate/master/doc/typedoc/index.html).
+View the [generated documentation](https://rawgit.com/mediamonks/seng-canvas-text/master/doc/typedoc/index.html).
 
 
 ## Building
 
-In order to build seng-boilerplate, ensure that you have [Git](http://git-scm.com/downloads)
+In order to build seng-canvas-text, ensure that you have [Git](http://git-scm.com/downloads)
 and [Node.js](http://nodejs.org/) installed.
 
 Clone a copy of the repo:
 ```sh
-git clone https://github.com/mediamonks/seng-boilerplate.git
+git clone https://github.com/mediamonks/seng-canvas-text.git
 ```
 
-Change to the seng-boilerplate directory:
+Change to the seng-canvas-text directory:
 ```sh
-cd seng-boilerplate
+cd seng-canvas-text
 ```
 
 Install typings cli utility:
