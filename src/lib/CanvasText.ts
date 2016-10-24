@@ -323,43 +323,8 @@ export default class CanvasText
 		const properties = innerMatch[1].split(";");
 
 		// Apply styles for each property.
-		for(let j = 0; j < properties.length; j++)
-		{
-			// Each property have a value. We split them.
-			const property = properties[j].split(":");
-			// A simple check.
-			if(this.validProperty(property[0]) || this.validProperty(property[1]))
-			{
-				// Wrong property name or value. We jump to the
-				// next loop.
-				continue;
-			}
-			// Again, save it into friendly-named variables to work comfortably.
-			const propertyName = property[0];
-			const propertyValue = property[1];
+		this.setStyleProps(properties, textStyleProps);
 
-			switch(propertyName)
-			{
-				case "font":
-					// proFont = propertyValue;
-					break;
-				case "font-family":
-					textStyleProps.fontFamily = propertyValue;
-					break;
-				case "font-weight":
-					textStyleProps.fontWeight = propertyValue;
-					break;
-				case "font-size":
-					textStyleProps.fontSize = propertyValue;
-					break;
-				case "font-style":
-					textStyleProps.fontStyle = propertyValue;
-					break;
-				case "color":
-					textStyleProps.fontColor = propertyValue;
-					break;
-			}
-		}
 		return innerMatch[2];
 	}
 
@@ -376,6 +341,19 @@ export default class CanvasText
 		// innerMatch[1] contains the properties of the attribute.
 		const properties = this.getClassInfo(innerMatch[1]).replace(/\s+/g, '').split(";");
 
+		// Apply styles for each property.
+		this.setStyleProps(properties, textStyleProps);
+
+		return innerMatch[2];
+	}
+
+	/**
+	 * Set textStyleProps object with new properties
+	 * @param properties
+	 * @param textStyleProps
+	 */
+	private setStyleProps(properties:Array<string>, textStyleProps:TextStyle):void
+	{
 		// Apply styles for each property.
 		for(let j = 0; j < properties.length; j++)
 		{
@@ -414,7 +392,6 @@ export default class CanvasText
 					break;
 			}
 		}
-		return innerMatch[2];
 	}
 
 	/**
