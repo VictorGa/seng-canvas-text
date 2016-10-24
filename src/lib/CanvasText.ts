@@ -2,6 +2,9 @@ import ITextStyleOptions from './ITextStyleOptions';
 import ITextInfo from './ITextInfo';
 import TextStyle from './TextStyle';
 import RegexNames from './RegexNames';
+import ISize from "./ISize";
+import IPoint from "./IPoint";
+
 /**
  * @namespace canvasText
  * @class CanvasText
@@ -29,7 +32,13 @@ export default class CanvasText
 	 * @type {Array}
 	 * @private
 	 */
-	private _classes:Array<TextStyle> = [];
+	private _classes:{[selector:string]: CSSStyleRule} = {};
+
+	/**
+	 * Contains final position
+	 * Good for calculating sizes
+	 */
+	private _incrementalPos:IPoint;
 
 	/**
 	 *
@@ -51,8 +60,17 @@ export default class CanvasText
 		if(typeof canvas !== 'undefined')
 		{
 			this._canvas = canvas;
-			this._context = canvas.getContext("2d");
+			this._context = <any>canvas.getContext("2d");
 		}
+	}
+
+	/**
+	 * Canvas getter
+	 * @returns {HTMLCanvasElement}
+	 */
+	get canvas():HTMLCanvasElement
+	{
+		return this._canvas;
 	}
 
 	/**
@@ -63,6 +81,14 @@ export default class CanvasText
 	constructor(textStyleOptions:ITextStyleOptions = {}, canvas?:HTMLCanvasElement)
 	{
 		this._style = new TextStyle(textStyleOptions);
+
+		if(typeof canvas === 'undefined')
+		{
+			canvas = document.createElement('canvas');
+			canvas.width = 1024;
+			canvas.height = 1024;
+		}
+
 		this.canvas = canvas;
 	}
 
@@ -75,12 +101,61 @@ export default class CanvasText
 		//Set default style properties
 		this.setContextProperties(this._style);
 
+		// Reset initial position
+		this._incrementalPos = {x: textInfo.x, y: textInfo.y};
+
 		// The main regex. Looks for <style>, <class> or <br /> tags.
 		const matches = textInfo.text.match(/<\s*br\s*\/>|<\s*class=["|']([^"|']+)["|']\s*\>([^>]+)<\s*\/class\s*\>|<\s*style=["|']([^"|']+)["|']\s*\>([^>]+)<\s*\/style\s*\>|[^<]+/g);
-		let incrementalPos = {x: textInfo.x, y: textInfo.y};
 
-		//Loop the different matches
-		matches.forEach(this.renderMatch.bind(this, textInfo, incrementalPos));
+		// Set black background
+		//this.drawBackground();
+
+		// Loop the different matches
+		matches.forEach(this.renderMatch.bind(this, textInfo, this._incrementalPos));
+	}
+
+	/**
+	 * Get text size
+	 * @returns {{width: number, height: number}}
+	 */
+	public getSize():ISize
+	{
+		return {
+			width: this._incrementalPos.x,
+			height: this._incrementalPos.y
+		};
+	}
+
+	/**
+	 * Get style class
+	 * @param className
+	 * @returns {CSSStyleRule}
+	 */
+	private getClassInfo(className:string):string
+	{
+		if(!this._classes[className])
+		{
+			// Find class
+			const styleSheets = Object.keys(document.styleSheets);
+			const ruleName = `.${className}`;
+			let foundCssRule = null;
+			for(let i = 0; i < styleSheets.length && !foundCssRule; i++)
+			{
+				const {cssRules} = document.styleSheets[styleSheets[i]];
+
+				for(let j = 0; j < cssRules.length; j++)
+				{
+					if(cssRules[j].selectorText === ruleName)
+					{
+						foundCssRule = cssRules[j];
+					}
+				}
+			}
+
+			this._classes[className] = foundCssRule;
+		}
+
+		return this._classes[className].style.cssText;
 	}
 
 	/**
@@ -125,6 +200,9 @@ export default class CanvasText
 			{
 				case RegexNames[RegexNames.STYLE]:
 					text = this.parseStyleExp(match, textStyleProps);
+					break;
+				case RegexNames[RegexNames.CLASS]:
+					text = this.parseClassExp(match, textStyleProps);
 					break;
 				case  RegexNames[RegexNames.BREAKLINE]:
 					// Check if current fragment is a line break.
@@ -283,6 +361,69 @@ export default class CanvasText
 			}
 		}
 		return innerMatch[2];
+	}
+
+	/**
+	 * Parse style match expression
+	 * @param matchValue
+	 * @param textStyleProps
+	 * @returns {string}
+	 */
+	private parseClassExp(matchValue:string, textStyleProps:TextStyle):string
+	{
+		const innerMatch = matchValue.match(/<\s*class=["|']([^"|']+)["|']\s*\>([^>]+)<\s*\/class\s*\>/);
+
+		// innerMatch[1] contains the properties of the attribute.
+		const properties = this.getClassInfo(innerMatch[1]).replace(/\s+/g, '').split(";");
+
+		// Apply styles for each property.
+		for(let j = 0; j < properties.length; j++)
+		{
+			// Each property have a value. We split them.
+			const property = properties[j].split(":");
+			// A simple check.
+			if(this.validProperty(property[0]) || this.validProperty(property[1]))
+			{
+				// Wrong property name or value. We jump to the
+				// next loop.
+				continue;
+			}
+			// Again, save it into friendly-named variables to work comfortably.
+			const propertyName = property[0];
+			const propertyValue = property[1];
+
+			switch(propertyName)
+			{
+				case "font":
+					// proFont = propertyValue;
+					break;
+				case "font-family":
+					textStyleProps.fontFamily = propertyValue;
+					break;
+				case "font-weight":
+					textStyleProps.fontWeight = propertyValue;
+					break;
+				case "font-size":
+					textStyleProps.fontSize = propertyValue;
+					break;
+				case "font-style":
+					textStyleProps.fontStyle = propertyValue;
+					break;
+				case "color":
+					textStyleProps.fontColor = propertyValue;
+					break;
+			}
+		}
+		return innerMatch[2];
+	}
+
+	/**
+	 * Draw background for high res texturing
+	 */
+	private drawBackground():void
+	{
+		this._context.fillStyle = 'black';
+		this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
 	}
 
 	/**
