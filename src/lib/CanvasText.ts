@@ -4,6 +4,8 @@ import TextStyle from './TextStyle';
 import RegexNames from './RegexNames';
 import ISize from "./ISize";
 import IPoint from "./IPoint";
+import BorderType from './BorderType';
+import * as rgbHex from "rgb-hex";
 
 /**
  * @namespace canvasText
@@ -32,7 +34,7 @@ export default class CanvasText
 	 * @type {Array}
 	 * @private
 	 */
-	private _classes:{[selector:string]: CSSStyleRule} = {};
+	private _classes:{[selector:string]:CSSStyleRule} = {};
 
 	/**
 	 * Contains final position
@@ -41,13 +43,18 @@ export default class CanvasText
 	private _incrementalPos:IPoint;
 
 	/**
+	 * Last element's font size
+	 */
+	private _currentFontSize:number;
+
+	/**
 	 *
 	 * @type {{}}
 	 * @private
 	 */
 	private _matchRegEx:{[regexId:number]:RegExp} = {
 		[RegexNames[RegexNames.STYLE]]: /<\s*style=/i,
-		[RegexNames[RegexNames.CLASS]]: /<\s*class=/i,
+		[RegexNames[RegexNames.CLASS]]: /<\s*div class=/i,
 		[RegexNames[RegexNames.BREAKLINE]]: /<\s*br\s*\/>/i,
 	};
 
@@ -105,7 +112,7 @@ export default class CanvasText
 		this._incrementalPos = {x: textInfo.x, y: textInfo.y};
 
 		// The main regex. Looks for <style>, <class> or <br /> tags.
-		const matches = textInfo.text.match(/<\s*br\s*\/>|<\s*class=["|']([^"|']+)["|']\s*\>([^>]+)<\s*\/class\s*\>|<\s*style=["|']([^"|']+)["|']\s*\>([^>]+)<\s*\/style\s*\>|[^<]+/g);
+		const matches = textInfo.text.match(/<\s*br\s*\/>|<\s*div class=["|']([^"|']+)["|']\s*\>([^>]*)<\s*\/div\s*\>|<\s*style=["|']([^"|']+)["|']\s*\>([^>]+)<\s*\/style\s*\>|[^<]+/g);
 
 		// Set black background
 		//this.drawBackground();
@@ -170,8 +177,10 @@ export default class CanvasText
 		// Set the size & font family.
 		this._context.font = style.fontWeight + ' ' + style.fontSize + ' ' + style.fontFamily;
 
-		this._context.textBaseline = this._style.textBaseline;
-		this._context.textAlign = this._style.textAlign;
+		console.log(style.textAlign);
+		this._currentFontSize = parseInt(style.fontSize, 10);
+		this._context.textBaseline = style.textBaseline;
+		this._context.textAlign = style.textAlign;
 	}
 
 	/**
@@ -206,7 +215,7 @@ export default class CanvasText
 					break;
 				case  RegexNames[RegexNames.BREAKLINE]:
 					// Check if current fragment is a line break.
-					pos.y += parseInt(this._style.lineHeight, 10) * 1.5;
+					pos.y += parseFloat(textStyleProps.lineHeight) * this._currentFontSize;
 					pos.x = textInfo.x;
 					continueParse = false;
 					break;
@@ -218,6 +227,9 @@ export default class CanvasText
 
 		//Stop execution at this point
 		if(!continueParse) return;
+
+		// Html tag is empty
+		const isEmpty = text === "";
 
 		// Reset textLines;
 		let textLines = [];
@@ -298,12 +310,34 @@ export default class CanvasText
 			// Start a new line.
 			if(textLines[n].linebreak)
 			{
-				pos.y += parseInt(this._style.lineHeight, 10) * 1.5;
+				pos.y += parseFloat(textStyleProps.lineHeight) * parseInt(textStyleProps.fontSize, 10);
 				pos.x = textInfo.x;
 			}
 			this._context.fillText(textLines[n].text, pos.x, pos.y);
 			// Increment X position based on current text measure.
 			pos.x += this._context.measureText(textLines[n].text).width;
+		}
+
+		if(textStyleProps.borderType.length)
+		{
+			textStyleProps.borderType.forEach(type => {
+				this._context.beginPath();
+				switch(type)
+				{
+					case BorderType.BOTTOM:
+						this._context.moveTo(0, pos.y + parseFloat(textStyleProps.lineHeight) * parseInt(textStyleProps.fontSize, 10));
+						this._context.lineTo(isEmpty ? parseFloat(textStyleProps.width) : pos.x, pos.y + parseFloat(textStyleProps.lineHeight) * parseInt(textStyleProps.fontSize, 10));
+						break;
+					case BorderType.TOP:
+						this._context.moveTo(0, pos.y);
+						this._context.lineTo(isEmpty ? parseFloat(textStyleProps.width) : pos.x , pos.y);
+						break;
+				}
+				console.log('bw', textStyleProps);
+				this._context.lineWidth = parseFloat(textStyleProps.borderWeight);
+				this._context.strokeStyle = textStyleProps.borderColor;
+				this._context.stroke();
+			});
 		}
 
 		this._context.restore();
@@ -322,6 +356,7 @@ export default class CanvasText
 		// innerMatch[1] contains the properties of the attribute.
 		const properties = innerMatch[1].split(";");
 
+		console.log('style', properties);
 		// Apply styles for each property.
 		this.setStyleProps(properties, textStyleProps);
 
@@ -336,14 +371,13 @@ export default class CanvasText
 	 */
 	private parseClassExp(matchValue:string, textStyleProps:TextStyle):string
 	{
-		const innerMatch = matchValue.match(/<\s*class=["|']([^"|']+)["|']\s*\>([^>]+)<\s*\/class\s*\>/);
+		const innerMatch = matchValue.match(/<\s*div class=["|']([^"|']+)["|']\s*\>([^>]*)<\s*\/div\s*\>/);
 
 		// innerMatch[1] contains the properties of the attribute.
 		const properties = this.getClassInfo(innerMatch[1]).replace(/\s+/g, '').split(";");
 
 		// Apply styles for each property.
 		this.setStyleProps(properties, textStyleProps);
-
 		return innerMatch[2];
 	}
 
@@ -369,11 +403,15 @@ export default class CanvasText
 			// Again, save it into friendly-named variables to work comfortably.
 			const propertyName = property[0];
 			const propertyValue = property[1];
+			let values =  propertyValue.split(' ');
 
 			switch(propertyName)
 			{
 				case "font":
 					// proFont = propertyValue;
+					break;
+				case "line-height":
+					textStyleProps.lineHeight = propertyValue;
 					break;
 				case "font-family":
 					textStyleProps.fontFamily = propertyValue;
@@ -389,6 +427,31 @@ export default class CanvasText
 					break;
 				case "color":
 					textStyleProps.fontColor = propertyValue;
+					break;
+				case "text-align":
+					textStyleProps.textAlign = this.clean(propertyValue);
+					break;
+				case "width":
+					textStyleProps.width = propertyValue;
+					break;
+				case "height":
+					textStyleProps.height = propertyValue;
+					break;
+				case "border-bottom":
+					if(values.length >= 1)
+					{
+						textStyleProps.borderWeight = values[0];
+					}
+					textStyleProps.borderType.push(BorderType.BOTTOM);
+					textStyleProps.borderColor = `#${rgbHex(values.pop())}`;
+					break;
+				case "border-top":
+					if(values.length >= 1)
+					{
+						textStyleProps.borderWeight = values[0];
+					}
+					textStyleProps.borderType.push(BorderType.TOP);
+					textStyleProps.borderColor = `#${rgbHex(values.pop())}`;
 					break;
 			}
 		}

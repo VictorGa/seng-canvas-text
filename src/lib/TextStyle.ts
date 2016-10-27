@@ -1,5 +1,5 @@
 import ITextStyleOptions from './ITextStyleOptions'
-
+import BorderType from './BorderType';
 /**
  * @namespace canvasText
  * @class CanvasText
@@ -13,9 +13,14 @@ export default class TextStyle implements ITextStyleOptions
 	public fontSize:string   = "25px";
 	public fontColor:string  = "#000";
 	public fontStyle:string  = "normal";
-	public textAlign:string  = "start";
-	public textBaseline:string = "alphabetic";
-	public lineHeight:string   = "20";
+	public textAlign:string  = "left";
+	public textBaseline:string = "top";
+	public lineHeight:string   = "1.5";
+	public borderColor:string   = "";
+	public borderWeight:string   = "";
+	public borderType:Array<number>   = [];
+	public width:string   = "1";
+	public height:string   = "1";
 
 	constructor(options:ITextStyleOptions = {})
 	{
