@@ -48,6 +48,11 @@ export default class CanvasText
 	private _currentFontSize:number;
 
 	/**
+	 * Base style for all text
+	 */
+	private _baseStyle:ITextStyleOptions;
+
+	/**
 	 *
 	 * @type {{}}
 	 * @private
@@ -55,6 +60,7 @@ export default class CanvasText
 	private _matchRegEx:{[regexId:number]:RegExp} = {
 		[RegexNames[RegexNames.STYLE]]: /<\s*style=/i,
 		[RegexNames[RegexNames.CLASS]]: /<\s*div class=/i,
+		[RegexNames[RegexNames.BOLD]]: /<\s*b>/i,
 		[RegexNames[RegexNames.BREAKLINE]]: /<\s*br\s*\/>/i,
 	};
 
@@ -67,7 +73,7 @@ export default class CanvasText
 		if(typeof canvas !== 'undefined')
 		{
 			this._canvas = canvas;
-			this._context = <any>canvas.getContext("2d");
+			this._context = <any>canvas.getContext("2d", {alpha: true});
 		}
 	}
 
@@ -87,13 +93,12 @@ export default class CanvasText
 	 */
 	constructor(textStyleOptions:ITextStyleOptions = {}, canvas?:HTMLCanvasElement)
 	{
-		this._style = new TextStyle(textStyleOptions);
+		this._baseStyle = textStyleOptions;
+		// this._style = new TextStyle(this._baseStyle);
 
 		if(typeof canvas === 'undefined')
 		{
 			canvas = document.createElement('canvas');
-			canvas.width = 1024;
-			canvas.height = 1024;
 		}
 
 		this.canvas = canvas;
@@ -105,14 +110,15 @@ export default class CanvasText
 	 */
 	public drawText(textInfo:ITextInfo):void
 	{
-		//Set default style properties
-		this.setContextProperties(this._style);
+
+		// Clean up canvas
+		this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
 		// Reset initial position
 		this._incrementalPos = {x: textInfo.x, y: textInfo.y};
 
 		// The main regex. Looks for <style>, <class> or <br /> tags.
-		const matches = textInfo.text.match(/<\s*br\s*\/>|<\s*div class=["|']([^"|']+)["|']\s*\>([^>]*)<\s*\/div\s*\>|<\s*style=["|']([^"|']+)["|']\s*\>([^>]+)<\s*\/style\s*\>|[^<]+/g);
+		const matches = textInfo.text.match(/<\s*br\s*\/>|<b>([^>]*)<\s*\/b\s*\>|<\s*div class=["|']([^"|']+)["|']\s*\>([^>]*)<\s*\/div\s*\>|<\s*style=["|']([^"|']+)["|']\s*\>([^>]+)<\s*\/style\s*\>|[^<]+/g);
 
 		// Set black background
 		//this.drawBackground();
@@ -162,6 +168,11 @@ export default class CanvasText
 			this._classes[className] = foundCssRule;
 		}
 
+		if(typeof this._classes[className] === 'undefined')
+		{
+			console.error(`Class name ${className} does not exist --- Canvas Text`)
+		}
+
 		return this._classes[className].style.cssText;
 	}
 
@@ -177,7 +188,6 @@ export default class CanvasText
 		// Set the size & font family.
 		this._context.font = style.fontWeight + ' ' + style.fontSize + ' ' + style.fontFamily;
 
-		console.log(style.textAlign);
 		this._currentFontSize = parseInt(style.fontSize, 10);
 		this._context.textBaseline = style.textBaseline;
 		this._context.textAlign = style.textAlign;
@@ -195,18 +205,21 @@ export default class CanvasText
 		this._context.save();
 
 		// Reset style props
-		let textStyleProps = new TextStyle();
+		let textStyleProps = new TextStyle(this._baseStyle);
 
 		// Match with the regular expression
 		let continueParse = true;
 		let text = match;
 
-		const regexFound = Object.keys(this._matchRegEx).find(regexName => this._matchRegEx[regexName].test(match));
+		const regexFound = (<any>Object.keys(this._matchRegEx)).find(regexName => this._matchRegEx[regexName].test(match));
 
 		if(regexFound)
 		{
 			switch(regexFound)
 			{
+				case RegexNames[RegexNames.BOLD]:
+					text = this.parseBoldExp(match, textStyleProps);
+					break;
 				case RegexNames[RegexNames.STYLE]:
 					text = this.parseStyleExp(match, textStyleProps);
 					break;
@@ -227,6 +240,8 @@ export default class CanvasText
 
 		//Stop execution at this point
 		if(!continueParse) return;
+
+		this.setContextProperties(textStyleProps);
 
 		// Html tag is empty
 		const isEmpty = text === "";
@@ -262,7 +277,7 @@ export default class CanvasText
 					{
 						splittedText[k] += " ";
 						// Check if the current text fits into the current line.
-						if(!this.isLineBreak(splittedText[k], (textInfo.boxWidth + textInfo.x), xAux))
+						if(!this.isLineBreak(splittedText[k], (textStyleProps.width + textInfo.x), xAux))
 						{
 							// Current text fit into the current line. So we save it
 							// to the current textLine.
@@ -302,8 +317,6 @@ export default class CanvasText
 			textLines.push({text: this.clean(text) + " ", linebreak: false});
 		}
 
-		this.setContextProperties(textStyleProps);
-
 		// Let's draw the text
 		for(let n = 0; n < textLines.length; n++)
 		{
@@ -325,15 +338,15 @@ export default class CanvasText
 				switch(type)
 				{
 					case BorderType.BOTTOM:
-						this._context.moveTo(0, pos.y + parseFloat(textStyleProps.lineHeight) * parseInt(textStyleProps.fontSize, 10));
-						this._context.lineTo(isEmpty ? parseFloat(textStyleProps.width) : pos.x, pos.y + parseFloat(textStyleProps.lineHeight) * parseInt(textStyleProps.fontSize, 10));
+						pos.y +=  parseFloat(textStyleProps.lineHeight) * parseInt(textStyleProps.fontSize, 10);
+						this._context.moveTo(0, pos.y);
+						this._context.lineTo(isEmpty ? parseFloat(textStyleProps.width) : pos.x, pos.y);
 						break;
 					case BorderType.TOP:
 						this._context.moveTo(0, pos.y);
 						this._context.lineTo(isEmpty ? parseFloat(textStyleProps.width) : pos.x , pos.y);
 						break;
 				}
-				console.log('bw', textStyleProps);
 				this._context.lineWidth = parseFloat(textStyleProps.borderWeight);
 				this._context.strokeStyle = textStyleProps.borderColor;
 				this._context.stroke();
@@ -341,6 +354,20 @@ export default class CanvasText
 		}
 
 		this._context.restore();
+	}
+
+	/**
+	 * Parse bold match expression
+	 * @param matchValue
+	 * @param textStyleProps
+	 * @returns {string}
+	 */
+	private parseBoldExp(matchValue:string, textStyleProps:TextStyle):string
+	{
+		const innerMatch = matchValue.match(/<b>([^>]+)<\s*\/b\s*\>/);
+		textStyleProps.fontWeight = 'bold';
+
+		return innerMatch[1];
 	}
 
 	/**

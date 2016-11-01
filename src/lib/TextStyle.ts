@@ -1,5 +1,5 @@
 import ITextStyleOptions from './ITextStyleOptions'
-import BorderType from './BorderType';
+
 /**
  * @namespace canvasText
  * @class CanvasText
