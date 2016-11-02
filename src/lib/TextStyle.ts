@@ -15,6 +15,7 @@ export default class TextStyle implements ITextStyleOptions
 	public fontStyle:string  = "normal";
 	public textAlign:string  = "left";
 	public textBaseline:string = "top";
+	public textTransform:string = "";
 	public lineHeight:string   = "1.5";
 	public borderColor:string   = "";
 	public borderWeight:string   = "";

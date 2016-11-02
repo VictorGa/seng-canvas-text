@@ -252,6 +252,22 @@ export default class CanvasText
 		// Clear javascript code line breaks.
 		text = text.replace(/\s*\n\s*/g, " ");
 
+		// Check for text modifications
+		switch(textStyleProps.textTransform)
+		{
+			case 'uppercase':
+				text = text.toUpperCase();
+				break;
+			case 'lowercase':
+				text = text.toLowerCase();
+				break;
+			case 'capitalize':
+				console.error('capitalize is not supported');
+				break;
+			default:
+				break;
+		}
+
 		if(typeof textInfo.boxWidth !== 'undefined')
 		{
 			// If returns true, it means we need a line break.
@@ -436,6 +452,9 @@ export default class CanvasText
 			{
 				case "font":
 					// proFont = propertyValue;
+					break;
+				case "text-transform":
+					textStyleProps.textTransform = propertyValue;
 					break;
 				case "line-height":
 					textStyleProps.lineHeight = propertyValue;

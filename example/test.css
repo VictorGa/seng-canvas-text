@@ -1,6 +1,7 @@
 .testWebgl {
 	padding: 0;
 	font-size: 80px;
+	text-transform: uppercase;
 	/*border-bottom: 1px solid #9dff7c;*/
 }
 
