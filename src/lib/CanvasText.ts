@@ -293,7 +293,7 @@ export default class CanvasText
 					{
 						splittedText[k] += " ";
 						// Check if the current text fits into the current line.
-						if(!this.isLineBreak(splittedText[k], (textStyleProps.width + textInfo.x), xAux))
+						if(!this.isLineBreak(splittedText[k], (textInfo.boxWidth + textInfo.x), xAux))
 						{
 							// Current text fit into the current line. So we save it
 							// to the current textLine.
