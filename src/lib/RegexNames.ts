@@ -3,7 +3,8 @@ enum RegexNames {
 	CLASS,
 	BOLD,
 	STYLE_ATTRIBUTES,
-	BREAKLINE
+	BREAKLINE,
+	BREAKLINE_INLINE,
 }
 
 export default RegexNames;

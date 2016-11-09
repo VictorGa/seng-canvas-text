@@ -108,8 +108,5 @@
     "webpack-dev-server": "^1.16.2",
     "webpack-system-register": "^1.3.2",
     "webpack-validator": "^2.1.3"
-  },
-  "dependencies": {
-    "rgb-hex": "^2.0.0"
   }
 }

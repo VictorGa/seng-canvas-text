@@ -46,7 +46,7 @@ module.exports = function()
 					query: {
 						tsconfig: 'config/tsconfig.webpack.json'
 					}
-				}
+				},
 			]
 		},
 

@@ -5,7 +5,6 @@ import RegexNames from './RegexNames';
 import ISize from "./ISize";
 import IPoint from "./IPoint";
 import BorderType from './BorderType';
-import * as rgbHex from "rgb-hex";
 
 /**
  * @namespace canvasText
@@ -48,6 +47,11 @@ export default class CanvasText
 	private _currentFontSize:number;
 
 	/**
+	 * Last element's font size
+	 */
+	private _lastRegexMatch:string;
+
+	/**
 	 * Base style for all text
 	 */
 	private _baseStyle:ITextStyleOptions;
@@ -62,6 +66,7 @@ export default class CanvasText
 		[RegexNames[RegexNames.CLASS]]: /<\s*div class=/i,
 		[RegexNames[RegexNames.BOLD]]: /<\s*b>/i,
 		[RegexNames[RegexNames.BREAKLINE]]: /<\s*br\s*\/>/i,
+		[RegexNames[RegexNames.BREAKLINE_INLINE]]: /<\s*brl\s*\/>/i,
 	};
 
 	/**
@@ -118,7 +123,7 @@ export default class CanvasText
 		this._incrementalPos = {x: textInfo.x, y: textInfo.y};
 
 		// The main regex. Looks for <style>, <class> or <br /> tags.
-		const matches = textInfo.text.match(/<\s*br\s*\/>|<b>([^>]*)<\s*\/b\s*\>|<\s*div class=["|']([^"|']+)["|']\s*\>([^>]*)<\s*\/div\s*\>|<\s*style=["|']([^"|']+)["|']\s*\>([^>]+)<\s*\/style\s*\>|[^<]+/g);
+		const matches = textInfo.text.match(/<\s*br\s*\/>|<\s*brl\s*\/>|<b>([^>]*)<\s*\/b\s*\>|<\s*div class=["|']([^"|']+)["|']\s*\>([^>]*)<\s*\/div\s*\>|<\s*style=["|']([^"|']+)["|']\s*\>([^>]+)<\s*\/style\s*\>|[^<]+/g);
 
 		// Set black background
 		//this.drawBackground();
@@ -215,6 +220,8 @@ export default class CanvasText
 
 		if(regexFound)
 		{
+			this._lastRegexMatch = regexFound;
+
 			switch(regexFound)
 			{
 				case RegexNames[RegexNames.BOLD]:
@@ -228,7 +235,14 @@ export default class CanvasText
 					break;
 				case  RegexNames[RegexNames.BREAKLINE]:
 					// Check if current fragment is a line break.
-					pos.y += parseFloat(textStyleProps.lineHeight) * this._currentFontSize;
+					pos.y += this._currentFontSize + parseFloat(textStyleProps.lineHeight) * parseInt(textStyleProps.fontSize, 10);
+					console.log('breakline', pos.y, textStyleProps.fontSize, textStyleProps.lineHeight, this._currentFontSize, parseFloat(textStyleProps.lineHeight) * parseInt(textStyleProps.fontSize, 10) + this._currentFontSize);
+					pos.x = textInfo.x;
+					continueParse = false;
+					break;
+				case  RegexNames[RegexNames.BREAKLINE_INLINE]:
+					// Check if current fragment is a line break.
+					pos.y += parseFloat(textStyleProps.lineHeight) * parseInt(textStyleProps.fontSize, 10);
 					pos.x = textInfo.x;
 					continueParse = false;
 					break;
@@ -275,7 +289,6 @@ export default class CanvasText
 			{
 				// Split text by words.
 				const splittedText = this.clean(text).split(" ");
-
 				// If there's only one word we don't need to make more checks.
 				if(splittedText.length == 1)
 				{
@@ -291,7 +304,10 @@ export default class CanvasText
 					// Loop words.
 					for(let k = 0; k < splittedText.length; k++)
 					{
+						// Replace just space at the beginning
+						splittedText[k] = splittedText[k].trim();
 						splittedText[k] += " ";
+
 						// Check if the current text fits into the current line.
 						if(!this.isLineBreak(splittedText[k], (textInfo.boxWidth + textInfo.x), xAux))
 						{
@@ -363,6 +379,9 @@ export default class CanvasText
 						this._context.lineTo(isEmpty ? parseFloat(textStyleProps.width) : pos.x , pos.y);
 						break;
 				}
+
+				pos.y -= parseFloat(textStyleProps.borderWeight)*2;
+				this._currentFontSize = 0;//parseFloat(textStyleProps.borderWeight)*2;
 				this._context.lineWidth = parseFloat(textStyleProps.borderWeight);
 				this._context.strokeStyle = textStyleProps.borderColor;
 				this._context.stroke();
@@ -399,7 +418,6 @@ export default class CanvasText
 		// innerMatch[1] contains the properties of the attribute.
 		const properties = innerMatch[1].split(";");
 
-		console.log('style', properties);
 		// Apply styles for each property.
 		this.setStyleProps(properties, textStyleProps);
 
@@ -421,7 +439,9 @@ export default class CanvasText
 
 		// Apply styles for each property.
 		this.setStyleProps(properties, textStyleProps);
-		return innerMatch[2];
+		innerMatch[2] = "" + innerMatch[2];
+		// console.log(innerMatch[2].split("").join(String.fromCharCode(8202)));
+		return innerMatch[2].split("").join(String.fromCharCode(8202));
 	}
 
 	/**
@@ -489,7 +509,7 @@ export default class CanvasText
 						textStyleProps.borderWeight = values[0];
 					}
 					textStyleProps.borderType.push(BorderType.BOTTOM);
-					textStyleProps.borderColor = `#${rgbHex(values.pop())}`;
+					textStyleProps.borderColor = `#${this.rgbHex(values.pop())}`;
 					break;
 				case "border-top":
 					if(values.length >= 1)
@@ -497,7 +517,7 @@ export default class CanvasText
 						textStyleProps.borderWeight = values[0];
 					}
 					textStyleProps.borderType.push(BorderType.TOP);
-					textStyleProps.borderColor = `#${rgbHex(values.pop())}`;
+					textStyleProps.borderColor = `#${this.rgbHex(values.pop())}`;
 					break;
 			}
 		}
@@ -550,5 +570,16 @@ export default class CanvasText
 			continue;
 		}
 		return _text.slice(0, i + 1);
+	}
+
+	/**
+	 * Convert rgb to hex
+	 * @param rgb
+	 * @returns {string}
+	 */
+	private rgbHex(rgb:string):string
+	{
+		const res = rgb.match(/\b\d{1,3}\b/g).map(Number);
+		return ((res[2] | res[1] << 8 | res[0] << 16) | 1 << 24).toString(16).slice(1);
 	}
 }
