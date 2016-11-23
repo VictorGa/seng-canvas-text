@@ -78,7 +78,7 @@ export default class CanvasText
 		if(typeof canvas !== 'undefined')
 		{
 			this._canvas = canvas;
-			this._context = <any>canvas.getContext("2d", {alpha: true});
+			this._context = <any>canvas.getContext("2d");
 		}
 	}
 
@@ -384,6 +384,7 @@ export default class CanvasText
 				this._currentFontSize = 0;//parseFloat(textStyleProps.borderWeight)*2;
 				this._context.lineWidth = parseFloat(textStyleProps.borderWeight);
 				this._context.strokeStyle = textStyleProps.borderColor;
+
 				this._context.stroke();
 			});
 		}
@@ -518,6 +519,26 @@ export default class CanvasText
 					}
 					textStyleProps.borderType.push(BorderType.TOP);
 					textStyleProps.borderColor = `#${this.rgbHex(values.pop())}`;
+					break;
+				case "border-bottom-width":
+					if(values.length >= 1)
+					{
+						textStyleProps.borderWeight = values[0];
+					}
+					textStyleProps.borderType.push(BorderType.BOTTOM);
+					break;
+				case "border-top-width":
+					if(values.length >= 1)
+					{
+						textStyleProps.borderWeight = values[0];
+					}
+					textStyleProps.borderType.push(BorderType.TOP);
+					break;
+				case "border-bottom-color":
+					textStyleProps.borderColor = `#${this.rgbHex(values[0])}`;
+					break;
+				case "border-top-color":
+					textStyleProps.borderColor = `#${this.rgbHex(values[0])}`;
 					break;
 			}
 		}
